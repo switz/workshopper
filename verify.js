@@ -3,7 +3,6 @@ const spawn   = require('child_process').spawn
     , through = require('through')
     , split   = require('split')
     , path    = require('path')
-    , coffee  = require('coffee-script')
 
 const wrap    = require('./term-util').wrap
     , red     = require('./term-util').red
@@ -24,8 +23,15 @@ function verify (acmd, bcmd, opts) {
           b.kill()
       }
 
-  if (coffee.helpers.isCoffee(acmd)) {
-    a = spawn(__dirname + '/node_modules/coffee-script/bin/coffee', acmd);
+  if (/\.coffee$/.test(acmd)) {
+    a = spawn('coffee', acmd);
+
+    a.on('error', function(err) {
+      console.log(red('ERROR:'));
+      console.log(red('Please ensure coffee-script is installed'));
+      console.log(red('$ npm install -g coffee-script'));
+      throw err;
+    });
   }
   else {
     a = spawn(process.execPath, acmd);
